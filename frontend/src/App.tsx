@@ -8,7 +8,6 @@ import { Controls } from './components/Controls';
 import { StatusTable } from './components/StatusTable';
 import { StatusCard } from './components/StatusCard';
 import { Tooltip } from './components/Tooltip';
-import { Footer } from './components/Footer';
 import { EmptyFavorites } from './components/EmptyFavorites';
 import { AnnouncementsBanner } from './components/AnnouncementsBanner';
 import { useMonitorData } from './hooks/useMonitorData';
@@ -730,8 +729,6 @@ function App() {
             </>
           )}
 
-          {/* 免责声明 - 截图模式下隐藏 */}
-          {!isScreenshotMode && <Footer />}
         </div>
       </div>
     </>

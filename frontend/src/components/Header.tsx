@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { Activity, CheckCircle, AlertTriangle, Sparkles, Share2, Filter } from 'lucide-react';
+import { Activity, CheckCircle, AlertTriangle, Filter } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { SUPPORTED_LANGUAGES, LANGUAGE_PATH_MAP, LANGUAGE_NAMES, isSupportedLanguage, type SupportedLanguage } from '../i18n';
 import { FlagIcon } from './FlagIcon';
-import { useToast } from './Toast';
-import { shareCurrentPage } from '../utils/share';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import { RefreshButton } from './RefreshButton';
 
@@ -30,7 +28,6 @@ export function Header({ stats, onFilterClick, onRefresh, loading, refreshCooldo
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { showToast } = useToast();
 
   // 语言下拉菜单状态
   const [showMobileLangMenu, setShowMobileLangMenu] = useState(false);
@@ -38,23 +35,6 @@ export function Header({ stats, onFilterClick, onRefresh, loading, refreshCooldo
 
   // 获取当前语言，使用类型守卫确保类型安全
   const currentLang: SupportedLanguage = isSupportedLanguage(i18n.language) ? i18n.language : 'zh-CN';
-
-  // 处理分享按钮点击
-  const handleShare = async () => {
-    const result = await shareCurrentPage();
-    if (result.method === 'cancelled') {
-      // 用户取消分享，静默处理
-      return;
-    }
-    if (result.success) {
-      if (result.method === 'copy') {
-        showToast(t('share.linkCopied'), 'success');
-      }
-      // Web Share API 成功时不需要提示，系统会处理
-    } else {
-      showToast(t('share.copyFailed'), 'error');
-    }
-  };
 
   /**
    * 处理语言切换
@@ -107,20 +87,10 @@ export function Header({ stats, onFilterClick, onRefresh, loading, refreshCooldo
             <div className="p-1.5 lg:p-2 bg-accent/10 rounded-lg border border-accent/20 flex-shrink-0 animate-heartbeat">
               <Activity className="w-5 h-5 lg:w-6 lg:h-6 text-accent" />
             </div>
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold text-gradient-hero">
-                RelayPulse
-              </h1>
-              {/* 桌面端 Tagline - 作为副标题 */}
-              <p className="hidden lg:block text-secondary text-xs mt-0.5">
-                {t('header.tagline')}
-              </p>
-            </div>
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gradient-hero truncate">
+              {t('header.tagline')}
+            </h1>
           </div>
-          {/* 移动端 Tagline - 作为副标题 */}
-          <p className="lg:hidden text-[10px] text-muted mt-1 pl-1 truncate">
-            {t('header.tagline')}
-          </p>
         </div>
 
         {/* 移动端：右上角操作区（语言 + 主题 + 统计卡片） */}
@@ -241,28 +211,6 @@ export function Header({ stats, onFilterClick, onRefresh, loading, refreshCooldo
           {/* 主题切换器 */}
           <ThemeSwitcher />
 
-          {/* 分享按钮 */}
-          <button
-            onClick={handleShare}
-            className="p-2 rounded-lg bg-elevated/50 text-secondary hover:text-primary hover:bg-muted/50 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:outline-none"
-            aria-label={t('share.share')}
-            title={t('share.share')}
-          >
-            <Share2 size={16} />
-          </button>
-
-          {/* 联系我们按钮 → 联系页面 */}
-          <button
-            onClick={() => {
-              const langPath = LANGUAGE_PATH_MAP[currentLang];
-              navigate(langPath ? `/${langPath}/contact` : '/contact');
-            }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-accent/40 bg-accent/10 text-accent font-semibold tracking-wide shadow-accent hover:bg-accent/20 transition focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:outline-none"
-          >
-            <Sparkles size={14} />
-            {t('header.contactBtn')}
-          </button>
-
           {/* 统计卡片 - 紧凑单行 */}
           <div className="flex gap-2">
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface/50 border border-default"
@@ -311,27 +259,6 @@ export function Header({ stats, onFilterClick, onRefresh, loading, refreshCooldo
           />
         )}
 
-        {/* 分享按钮 - 移动端 */}
-        <button
-          onClick={handleShare}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-elevated/50 text-secondary hover:text-primary hover:bg-muted/50 transition-all duration-200 text-xs ml-auto focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:outline-none"
-          aria-label={t('share.share')}
-        >
-          <Share2 size={12} />
-          {t('share.shareShort')}
-        </button>
-
-        {/* 联系我们按钮 - 移动端紧凑版 */}
-        <button
-          onClick={() => {
-            const langPath = LANGUAGE_PATH_MAP[currentLang];
-            navigate(langPath ? `/${langPath}/contact` : '/contact');
-          }}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg border border-accent/40 bg-accent/10 text-accent text-xs font-medium shadow-accent hover:bg-accent/20 transition whitespace-nowrap focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:outline-none"
-        >
-          <Sparkles size={12} />
-          {t('header.contactBtnShort')}
-        </button>
       </div>
     </header>
   );
