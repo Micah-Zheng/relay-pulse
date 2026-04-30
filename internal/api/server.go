@@ -135,10 +135,8 @@ func NewServer(store storage.Storage, cfg *config.AppConfig, port string, autoMo
 		// HSTS（强制 HTTPS，有效期 1 年）- Cloudflare 提供 HTTPS
 		c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 
-		// 防止点击劫持 - 对 /p/* 路径允许任意嵌入（iframe 友好）
-		if !strings.HasPrefix(path, "/p/") {
-			c.Header("X-Frame-Options", "SAMEORIGIN")
-		}
+		// Allow embedding the status dashboard in the private new-api console.
+		_ = path
 
 		// 防止 MIME 类型嗅探
 		c.Header("X-Content-Type-Options", "nosniff")
