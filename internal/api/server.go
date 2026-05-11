@@ -135,9 +135,14 @@ func NewServer(store storage.Storage, cfg *config.AppConfig, port string, autoMo
 		// HSTS（强制 HTTPS，有效期 1 年）- Cloudflare 提供 HTTPS
 		c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 
-		// 防止点击劫持 - 对 /p/* 路径允许任意嵌入（iframe 友好）
-		if !strings.HasPrefix(path, "/p/") {
+		// 防止点击劫持 - 允许 api.tcp.red 嵌入（iframe 友好），其他同源
+		if strings.HasPrefix(path, "/p/") {
+			// /p/* 公开页面：允许任意来源嵌入
+			c.Header("Content-Security-Policy", "frame-ancestors *")
+		} else {
+			// 其他页面：仅允许同源和 api.tcp.red 嵌入
 			c.Header("X-Frame-Options", "SAMEORIGIN")
+			c.Header("Content-Security-Policy", "frame-ancestors 'self' https://api.tcp.red")
 		}
 
 		// 防止 MIME 类型嗅探
